@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Paciente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Editar Paciente</h2>
+        <form method="POST" action="{{ url_for('edit_patient', patient_id=patient['id']) }}">
+            <div class="mb-3">
+                <label for="patient_id" class="form-label">ID del Paciente</label>
+                <input type="text" class="form-control" id="patient_id" name="patient_id" value="{{ patient['identifier'][0]['value'] }}" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Nombre(s)</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ patient['name'][0]['given'][0] }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="family" class="form-label">Apellido</label>
+                <input type="text" class="form-control" id="family" name="family" value="{{ patient['name'][0]['family'] }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="gender" class="form-label">Género</label>
+                <select id="gender" name="gender" class="form-select">
+                    <option value="male" {% if patient['gender'] == 'male' %}selected{% endif %}>Masculino</option>
+                    <option value="female" {% if patient['gender'] == 'female' %}selected{% endif %}>Femenino</option>
+                    <option value="other" {% if patient['gender'] == 'other' %}selected{% endif %}>Otro</option>
+                    <option value="unknown" {% if patient['gender'] == 'unknown' %}selected{% endif %}>Desconocido</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="birthDate" class="form-label">Fecha de Nacimiento</label>
+                <input type="date" class="form-control" id="birthDate" name="birthDate" value="{{ patient['birthDate'] }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="maritalStatus" class="form-label">Estado Civil</label>
+                <select id="maritalStatus" name="maritalStatus" class="form-select">
+                    <option value="S" {% if patient['maritalStatus']['coding'][0]['code'] == 'S' %}selected{% endif %}>Soltero</option>
+                    <option value="M" {% if patient['maritalStatus']['coding'][0]['code'] == 'M' %}selected{% endif %}>Casado</option>
+                    <option value="C" {% if patient['maritalStatus']['coding'][0]['code'] == 'C' %}selected{% endif %}>Unión Libre</option>
+                    <option value="D" {% if patient['maritalStatus']['coding'][0]['code'] == 'D' %}selected{% endif %}>Divorciado</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="deceased" class="form-label">¿Fallecido?</label>
+                <select id="deceased" name="deceased" class="form-select">
+                    <option value="false" {% if not patient.get('deceasedBoolean', False) %}selected{% endif %}>No</option>
+                    <option value="true" {% if patient.get('deceasedBoolean', False) %}selected{% endif %}>Sí</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="phone" class="form-label">Teléfono</label>
+                <input type="text" class="form-control" id="phone" name="phone" value="{{ patient['telecom'][0]['value'] if patient['telecom']|length > 0 else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ patient['telecom'][1]['value'] if patient['telecom']|length > 1 else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="address" class="form-label">Dirección</label>
+                <input type="text" class="form-control" id="address" name="address" value="{{ patient['address'][0]['line'][0] if patient['address']|length > 0 and patient['address'][0]['line']|length > 0 else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="city" class="form-label">Ciudad</label>
+                <input type="text" class="form-control" id="city" name="city" value="{{ patient['address'][0]['city'] if patient['address']|length > 0 else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="state" class="form-label">Estado</label>
+                <input type="text" class="form-control" id="state" name="state" value="{{ patient['address'][0]['state'] if patient['address']|length > 0 else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="postalCode" class="form-label">Código Postal</label>
+                <input type="text" class="form-control" id="postalCode" name="postalCode" value="{{ patient['address'][0]['postalCode'] if patient['address']|length > 0 else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="country" class="form-label">País</label>
+                <input type="text" class="form-control" id="country" name="country" value="{{ patient['address'][0]['country'] if patient['address']|length > 0 else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="contactName" class="form-label">Contacto de Emergencia (Nombre)</label>
+                <input type="text" class="form-control" id="contactName" name="contactName" value="{{ patient['contact'][0]['name']['family'] if patient['contact']|length > 0 else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="contactPhone" class="form-label">Teléfono de Emergencia</label>
+                <input type="text" class="form-control" id="contactPhone" name="contactPhone" value="{{ patient['contact'][0]['telecom'][0]['value'] if patient['contact']|length > 0 else '' }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="language" class="form-label">Idioma Preferido</label>
+                <input type="text" class="form-control" id="language" name="language" value="{{ patient['communication'][0]['language']['coding'][0]['display'] if patient['communication']|length > 0 else '' }}">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+        <br>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Volver al inicio</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

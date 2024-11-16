@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historia Clínica</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Estilo general para la página */
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* Estilo para las pestañas */
+        .nav-tabs .nav-link {
+            font-weight: bold;
+            border-radius: 0.25rem 0.25rem 0 0;
+        }
+
+        .tab-content {
+            margin-top: 20px;
+        }
+
+        /* Estilo para el botón de Modificar */
+        .btn-modify {
+            background-color: #007bff;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-transform: uppercase;
+        }
+
+        .btn-modify:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .table-striped tbody tr:nth-child(odd) {
+            background-color: #f9f9f9;
+        }
+
+        /* Estilo para la duración en horas */
+        .hours {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* Estilo para las celdas con fecha */
+        .date-cell {
+            font-size: 1.1rem;
+        }
+        .date-input {
+            font-size: 1.1rem;
+            padding: 5px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Historia Clínica del Paciente</h1>
+        <h3 class="text-center mb-4">Paciente ID: {{ patient_id }}</h3>
+
+        <!-- Pestañas -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="conditions-tab" data-bs-toggle="tab" href="#conditions" role="tab" aria-controls="conditions" aria-selected="true">Condiciones Médicas</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="encounters-tab" data-bs-toggle="tab" href="#encounters" role="tab" aria-controls="encounters" aria-selected="false">Encuentros</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="medications-tab" data-bs-toggle="tab" href="#medications" role="tab" aria-controls="medications" aria-selected="false">Medicamentos</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="observations-tab" data-bs-toggle="tab" href="#observations" role="tab" aria-controls="observations" aria-selected="false">Observaciones</a>
+            </li>
+        </ul>
+
+        <!-- Contenido de las Pestañas -->
+        <div class="tab-content" id="myTabContent">
+
+            <!-- Condiciones Médicas -->
+            <div class="tab-pane fade show active" id="conditions" role="tabpanel" aria-labelledby="conditions-tab">
+                <div class="mb-4">
+                    <h2>Condiciones Médicas</h2>
+                    {% if history_data['conditions'] %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Condición</th>
+                                    <th>Estado Clínico</th>
+                                    <th>Fecha de Inicio</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for condition in history_data['conditions'] %}
+                                <tr>
+                                    <td>{{ condition['id'] }}</td>
+                                    <td>{{ condition['code']['text'] }}</td>
+                                    <td>{{ condition['clinicalStatus']['coding'][0]['display'] }}</td>
+                                    <td class="date-cell">
+                                        <!-- Estilo calendario para la fecha de inicio -->
+                                        <input type="date" value="{{ condition['onsetDateTime'][:10] }}" class="date-input" disabled>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No hay condiciones médicas registradas para este paciente.</p>
+                    {% endif %}
+                </div>
+                <button class="btn-modify">Modificar Condiciones Médicas</button>
+            </div>
+
+            <!-- Encuentros -->
+            <div class="tab-pane fade" id="encounters" role="tabpanel" aria-labelledby="encounters-tab">
+                <div class="mb-4">
+                    <h2>Encuentros</h2>
+                    {% if history_data['encounters'] %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tipo de Encuentro</th>
+                                    <th>Motivo</th>
+                                    <th>Fecha de Inicio</th>
+                                    <th>Fecha de Fin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for encounter in history_data['encounters'] %}
+                                <tr>
+                                    <td>{{ encounter['id'] }}</td>
+                                    <td>{{ encounter['type'][0]['coding'][0]['display'] }}</td>
+                                    <td>{{ encounter['reasonCode'][0]['text'] }}</td>
+                                    <td class="date-cell">
+                                        <input type="datetime-local" value="{{ encounter['period']['start'][:16] }}" class="date-input" disabled>
+                                    </td>
+                                    <td class="date-cell">
+                                        <input type="datetime-local" value="{{ encounter['period']['end'][:16] }}" class="date-input" disabled>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No hay encuentros registrados para este paciente.</p>
+                    {% endif %}
+                </div>
+                <button class="btn-modify">Modificar Encuentros</button>
+            </div>
+
+            <!-- Medicamentos -->
+            <div class="tab-pane fade" id="medications" role="tabpanel" aria-labelledby="medications-tab">
+                <div class="mb-4">
+                    <h2>Medicamentos</h2>
+                    {% if history_data['medications'] %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Medicamento</th>
+                                    <th>Dosis</th>
+                                    <th>Frecuencia</th>
+                                    <th>Vía de Administración</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for medication in history_data['medications'] %}
+                                <tr>
+                                    <td>{{ medication['id'] }}</td>
+                                    <td>{{ medication['medicationCodeableConcept']['text'] }}</td>
+                                    <td>{{ medication['dosageInstruction'][0]['doseAndRate'][0]['doseQuantity']['value'] }} mg</td>
+                                    <td>{{ medication['dosageInstruction'][0]['timing']['repeat']['frequency'] }} vez al día</td>
+                                    <td>{{ medication['dosageInstruction'][0]['route']['coding'][0]['display'] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No hay medicamentos registrados para este paciente.</p>
+                    {% endif %}
+                </div>
+                <button class="btn-modify">Modificar Medicamentos</button>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="tab-pane fade" id="observations" role="tabpanel" aria-labelledby="observations-tab">
+                <div class="mb-4">
+                    <h2>Observaciones</h2>
+                    {% if history_data['observations'] %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Descripción</th>
+                                    <th>Fecha y Hora</th>
+                                    <th>Duración Total (Horas)</th>
+                                    <th>Promedio 30 días (Horas)</th>
+                                    <th>Dispositivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for observation in history_data['observations'] %}
+                                <tr>
+                                    <td>{{ observation['id'] }}</td>
+                                    <td>{{ observation['code']['text'] }}</td>
+                                    <td class="date-cell">
+                                        <input type="datetime-local" value="{{ observation['effectivePeriod']['start'][:16] }}" class="date-input" disabled>
+                                    </td>
+                                    <td class="hours">
+                                        {{ (observation['valuePeriod']['end'][:13] | float - observation['valuePeriod']['start'][:13] | float) / 60 / 60 }}
+                                    </td>
+                                    <td class="hours">{{ observation['component'][2]['valueQuantity']['value'] / 60 }}</td>
+                                    <td>{{ observation['device']['display'] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No hay observaciones registradas para este paciente.</p>
+                    {% endif %}
+                </div>
+                <button class="btn-modify">Modificar Observaciones</button>
+            </div>
+
+        </div>
+        
+        <a href="/" class="btn btn-primary">Volver al Inicio</a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

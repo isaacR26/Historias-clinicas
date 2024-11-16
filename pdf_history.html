@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historia Clínica - PDF</title>
+</head>
+<body>
+    <h1>Historia Clínica del Paciente</h1>
+    <h3>Paciente ID: {{ patient_id }}</h3>
+
+    <h2>Condiciones Médicas</h2>
+    <ul>
+        {% for condition in history_data['conditions'] %}
+        <li><strong>{{ condition['name'] }}</strong> (Estado: {{ condition['status'] }}, Fecha de Inicio: {{ condition['onset'] }})</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Medicaciones</h2>
+    <ul>
+        {% for medication in history_data['medications'] %}
+        <li><strong>{{ medication['name'] }}</strong> (Dosificación: {{ medication['dosage'] }}, Ruta: {{ medication['route'] }}, Instrucciones: {{ medication['instructions'] }})</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Encuentros Médicos</h2>
+    <ul>
+        {% for encounter in history_data['encounters'] %}
+        <li><strong>Fecha: {{ encounter['date'] }}</strong>, Razón: {{ encounter['reason'] }}, Duración: {{ encounter['duration'] }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
